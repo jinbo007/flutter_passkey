@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_passkey/flutter_passkey.dart';
 
@@ -16,21 +15,24 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _flutterPasskeyPlugin = FlutterPasskey();
   bool _isPasskeySupported = false;
+  String _response = "";
 
   String _getCredentialCreationOptions() {
     // Obtain this from the server
-    return '';
+    return '{"id":"123456"}';
   }
 
   String _getCredentialRequestOptions() {
     // Obtain this from the server
-    return '';
+    return '{"id":"123456"}';
   }
 
   @override
   void initState() {
     super.initState();
-    _flutterPasskeyPlugin.isSupported().then((value) => setState(() {_isPasskeySupported = value;}));
+    _flutterPasskeyPlugin.isSupported().then((value) => setState(() {
+          _isPasskeySupported = value;
+        }));
   }
 
   @override
@@ -50,16 +52,21 @@ class _MyAppState extends State<MyApp> {
                   child: Text("This platform doesn't support Passkey."),
                 ),
               if (_isPasskeySupported)
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Text('response: $_response'),
                     FilledButton(
                       onPressed: () {
                         final options = _getCredentialCreationOptions();
-                        _flutterPasskeyPlugin.createCredential(options).then((response) {
+                        _flutterPasskeyPlugin
+                            .createCredential(options)
+                            .then((response) {
                           // Send response to the server
+                          _response = response;
                         }).catchError((error) {
                           // Handle error
+                          _response = "some error happened: $error";
                         });
                       },
                       child: const Text("Register Passkey"),
@@ -67,10 +74,14 @@ class _MyAppState extends State<MyApp> {
                     FilledButton(
                       onPressed: () {
                         final options = _getCredentialRequestOptions();
-                        _flutterPasskeyPlugin.getCredential(options).then((response) {
+                        _flutterPasskeyPlugin
+                            .getCredential(options)
+                            .then((response) {
                           // Send response to the server
+                          _response = "verifty response:$response";
                         }).catchError((error) {
                           // Handle error
+                          _response = "verifty response:$error";
                         });
                       },
                       child: const Text("Verify Passkey"),
